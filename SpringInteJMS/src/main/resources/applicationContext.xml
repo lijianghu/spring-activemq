@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+ 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" 
+    xsi:schemaLocation="http://www.springframework.org/schema/beans   
+         http://www.springframework.org/schema/beans/spring-beans-2.5.xsd   
+         http://www.springframework.org/schema/context   
+         http://www.springframework.org/schema/context/spring-context-2.5.xsd"> 
+    <!-- 配置JMS连接工厂 --> 
+    <bean id="myConnectionFactory"  class="org.springframework.jms.connection.CachingConnectionFactory"> 
+        <!-- Session缓存数量 --> 
+        <property name="sessionCacheSize" value="10" /> 
+        <property name="targetConnectionFactory"> 
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory"> 
+                <!-- MQ地址 --> 
+                <property name="brokerURL"  value="failover:(tcp://127.0.0.1:61616)?randomize=false" /> 
+                <!-- 是否异步发送 --> 
+                <property name="useAsyncSend" value="false" /> 
+            </bean> 
+        </property> 
+    </bean> 
+    <!-- 发送消息的目的地（一个主题） --> 
+    <bean id="myDestination" class="org.apache.activemq.command.ActiveMQTopic"> 
+        <!-- 设置消息主题的名字 --> 
+        <constructor-arg index="0" value="Online.Notice.Topic" />
+    </bean> 
+    
+    <!-- 回复者返回消息配置begin-->
+    <!-- 默认的消息回复队列 -->  
+	  <!-- <bean id="defaultResponseQueue" class="org.apache.activemq.command.ActiveMQQueue">  
+	    <constructor-arg>  
+	        <value>defaultResponseQueue</value>  
+	    </constructor-arg>  
+	</bean>    -->
+    <!-- defaultResponseQueue对应的监听器 -->  
+<!--  	<bean id="defaultResponseQueueListener" class="com.tiantian.springintejms.listener.ConsumerMessageListener"/>   -->
+    <!-- 回复者返回消息配置 end-->
+    
+    <!-- 配置JMS模版 --> 
+    <bean id="myJmsTemplate" class="org.springframework.jms.core.JmsTemplate"> 
+        <property name="connectionFactory" ref="myConnectionFactory" /> 
+        <property name="defaultDestination" ref="myDestination" />
+        <!-- 订阅发布模式 --> 
+        <property name="pubSubDomain" value="true" /> 
+        <property name="receiveTimeout" value="10000" /> 
+        <property name="explicitQosEnabled" value="true" />
+<!--         <property name="messageConverter" ref="myMessageConverter"></property> -->
+    </bean>
+    
+<!--     <bean id="myMessageConverter" class="com.tiantian.springintejms.listener.Mymessage"/> -->
+    
+    <!-- defaultResponseQueue对应的监听容器 -->  
+	<!--  <bean id="defaultResponseQueueMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">  
+	    <property name="connectionFactory" ref="myConnectionFactory"/>
+	    <property name="destination" ref="defaultResponseQueue"/>  
+	    <property name="messageListener" ref="defaultResponseQueueListener"/> 
+	</bean>  -->  
+</beans> 
