@@ -22,18 +22,11 @@ public class ConsumerMessageListener {
     public static void main(String[] args) throws InterruptedException { 
     	ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml"); 
         ctx.start();
-//        while(true) { 
-//            Thread.sleep(100); 
-//        } 
     }
-    public void receive(Message m) throws Exception { 
+    public void receive(Object m) throws Exception { 
     	if (m instanceof TextMessage) { // 接收文本消息
 			TextMessage message = (TextMessage) m;
 			System.out.println(message.getText());
-			//测试事务
-			if(1==1){
-//				  throw new RuntimeException("Error");  
-			}
 			
 		} else if (m instanceof MapMessage) { // 接收键值对消息
 			MapMessage message = (MapMessage) m;
@@ -55,11 +48,12 @@ public class ConsumerMessageListener {
 			ObjectMessage message = (ObjectMessage) m;
 			User user = (User) message.getObject();
 			System.out.println(user);
-		}else if (m instanceof ObjectMessage) { // 接收流文件
-			BlobMessage blobMessage = (BlobMessage) m;
-			InputStream in = blobMessage.getInputStream();
-			String fileName=blobMessage.getStringProperty("FILE.NAME")+System.currentTimeMillis();
-			File file =new File(fileName);
+		}else if(m instanceof BlobMessage){
+			System.out.println("filename:"+ ((BlobMessage) m).getStringProperty("FILE.NAME"));
+			System.out.println("filesize:"+ ((BlobMessage) m).getLongProperty("FILE.SIZE"));
+			InputStream in = ((BlobMessage) m).getInputStream();
+			String fileName=((Message) m).getStringProperty("FILE.NAME");
+			File file =new File("D://"+System.currentTimeMillis()+fileName);
 			OutputStream os = new FileOutputStream(file);
 			   int bytesRead = 0;
 			   byte[] buffer = new byte[8192];
@@ -68,11 +62,8 @@ public class ConsumerMessageListener {
 			   }
 			   os.close();
 			   in.close();
-	 }else {
+			 }else {
 			System.out.println(m);
-			if(1==1){
-				//throw new RuntimeException("Error"); 
-			}
 		}
     }
 } 

@@ -1,16 +1,18 @@
 package com.tiantian.springintejms.test;
 
 import java.io.FileNotFoundException;
+import java.io.File;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 
+import org.apache.activemq.BlobMessage;
+import org.apache.activemq.command.ActiveMQBlobMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.jms.JmsException;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 public class Produce {
@@ -19,7 +21,8 @@ public class Produce {
 	    public static void main(String[] args) throws FileNotFoundException {
 	        ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
 //	        final Destination destination = (Destination)ctx.getBean("defaultResponseQueue");//用于接收消费者返回的消息
-	        JmsTemplate jmsTemplate = (JmsTemplate) ctx.getBean("myJmsTemplate"); 
+	        JmsTemplate jmsTemplate = (JmsTemplate) ctx.getBean("myJmsTemplate");
+	        JmsTemplate jmsTemplate2 = (JmsTemplate) ctx.getBean("myJmsTemplate2"); 
 	        for (int i = 0; i < 10; i++) {
 	            index = i; 
 	            try {
@@ -28,6 +31,7 @@ public class Produce {
 //	                    	//文本消息  
 	                    	System.out.println("send "+index);
 	                    	Message m = session.createTextMessage("文本消息"+index);  
+	                    	
 //	                    	//键值对消息  
 //	                    	MapMessage m = session.createMapMessage();  
 //	                    	m.setLong("age", new Long(32));  
@@ -51,7 +55,7 @@ public class Produce {
 	                    	return m; 
 	                    } 
 	                });
-	            } catch (JmsException e) { 
+	            } catch (Exception e) { 
 	            	System.out.println("eeeeeeeeeee");
 	                e.printStackTrace();
 	            } 
